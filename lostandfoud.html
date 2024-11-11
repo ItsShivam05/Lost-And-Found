@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost and Found</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1 class="one">Lost and Found</h1>
+        <nav>
+            <button onclick="scrollToSection('report-lost')">Report Lost Item</button>
+            <button onclick="scrollToSection('report-found')">Report Found Item</button>
+            <button onclick="scrollToSection('search')">Search Items</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="report-lost">
+            <h2>Report a Lost Item</h2>
+            <form>
+                <label for="lost-description">Item Description:</label>
+                <textarea id="lost-description" required></textarea>
+
+                <label for="lost-location">Location Lost:</label>
+                <input type="text" id="lost-location" required>
+
+                <label for="lost-date">Date Lost:</label>
+                <input type="date" id="lost-date" required>
+
+                <label for="contact-info">Contact Information:</label>
+                <input type="text" id="contact-info" required>
+
+                <label for="lost-photo">Upload Photo:</label>
+                <input type="file" id="lost-photo" accept="image/*">
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+        <section id="report-found">
+            <h2>Report a Found Item</h2>
+            <form>
+                <label for="found-description">Item Description:</label>
+                <textarea id="found-description" required></textarea>
+
+                <label for="found-location">Location Found:</label>
+                <input type="text" id="found-location" required>
+
+                <label for="found-date">Date Found:</label>
+                <input type="date" id="found-date" required>
+
+                <label for="contact-info-found">Contact Information:</label>
+                <input type="text" id="contact-info-found" required>
+
+                <label for="found-photo">Upload Photo:</label>
+                <input type="file" id="found-photo" accept="image/*">
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+
+        <section id="search">
+            <h2>Search for Items</h2>
+            <input type="text" placeholder="Search by description or location">
+            <button>Search</button>
+            <div class="results">
+                <h3>Results:</h3>
+                <p>No results found.</p>
+            </div>
+        </section>
+    </main>
+    <section id="linkedin">
+        <button onclick="openLinkedIn()">LinkedIn</button>
+    </section>
+    
+    <footer>
+        <p>© 2024 Lost and Found. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+        function openLinkedIn() {
+            window.open("https://www.linkedin.com/in/shivamthakur05/", "_blank");
+        }
+        
+const lostItems = [];
+const foundItems = [];
+
+
+function submitForm(event, type) {
+    event.preventDefault(); 
+
+   
+    const description = document.getElementById(`${type}-description`).value;
+    const location = document.getElementById(`${type}-location`).value;
+    const date = document.getElementById(`${type}-date`).value;
+    const contactInfo = document.getElementById(`contact-info${type === "found" ? "-found" : ""}`).value;
+    
+    
+    const photo = document.getElementById(`${type}-photo`).files[0];
+
+    
+    const item = {
+        description,
+        location,
+        date,
+        contactInfo,
+        type,
+        photo: photo ? URL.createObjectURL(photo) : null 
+    };
+
+    if (type === "lost") {
+        lostItems.push(item);
+        alert("Lost item reported successfully!");
+    } else {
+        foundItems.push(item);
+        alert("Found item reported successfully!");
+    }
+
+    document.getElementById(`${type}-description`).value = "";
+    document.getElementById(`${type}-location`).value = "";
+    document.getElementById(`${type}-date`).value = "";
+    document.getElementById(`contact-info${type === "found" ? "-found" : ""}`).value = "";
+    document.getElementById(`${type}-photo`).value = null;
+
+    displayItems();
+}
+
+function displayItems(filteredItems = [...lostItems, ...foundItems]) {
+    const resultsContainer = document.querySelector(".results");
+    resultsContainer.innerHTML = ""; 
+
+    if (filteredItems.length > 0) {
+        filteredItems.forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.classList.add("result-item");
+            itemDiv.innerHTML = `
+                <h3>${item.type.charAt(0).toUpperCase() + item.type.slice(1)} Item</h3>
+                <p><strong>Description:</strong> ${item.description}</p>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Date:</strong> ${item.date}</p>
+                <p><strong>Contact:</strong> ${item.contactInfo}</p>
+                ${item.photo ? `<img src="${item.photo}" alt="Item photo" width="100">` : ""}
+            `;
+            resultsContainer.appendChild(itemDiv);
+        });
+    } else {
+        resultsContainer.innerHTML = "<p>No results found.</p>";
+    }
+}
+
+function searchItems() {
+    const searchQuery = document.querySelector("#search input[type='text']").value.toLowerCase();
+    const allItems = [...lostItems, ...foundItems];
+
+    const filteredItems = allItems.filter(item => 
+        item.description.toLowerCase().includes(searchQuery) || 
+        item.location.toLowerCase().includes(searchQuery)
+    );
+
+    displayItems(filteredItems);
+}
+
+document.querySelector("#report-lost form").addEventListener("submit", (e) => submitForm(e, "lost"));
+document.querySelector("#report-found form").addEventListener("submit", (e) => submitForm(e, "found"));
+
+document.querySelector("#search button").addEventListener("click", (e) => {
+    e.preventDefault();
+    searchItems();
+});
+
+        
+    </script>
+</body>
+</html>
